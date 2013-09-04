@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Main.cs">
+    <Files>
+      <File FileName="Assets\Scripts\Main.cs" Line="40" Column="41" />
+      <File FileName="Assets\Scripts\Testing.cs" Line="15" Column="1" />
+      <File FileName="Assets\Scripts\Central.cs" Line="11" Column="9" />
+      <File FileName="Assets\Scripts\CarElements.cs" Line="28" Column="1" />
+      <File FileName="Assets\Scripts\ForceField.cs" Line="9" Column="3" />
+      <File FileName="Assets\Scripts\WallTriggers.cs" Line="6" Column="32" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
