@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<html>
+	<head>
+		<title>Unity and web demo</title>
+		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" />
+	</head>
+	<body>
+		<div id="main-container-p">
+			<h1>Things you can do:</h1>
+			<div class="color-picker" id="red"></div>
+			<div class="color-picker" id="blue"></div>
+			<div class="color-picker" id="green"></div>
+			<div class="color-picker" id="orange"></div>
+			<div class="color-picker" id="yellow"></div>
+			<div class="color-picker" id="purple"></div>
+			<button id="quit-button">Quit</button>
+			<p>Click stuff:</p>
+		</div>
+		<div id="main-container-l">
+			<div id="avatar"></div>
+			<h1>Things I know about you:</h1>
+			<ul>
+				<li tal:content="data/ip">An IP</li>
+				<li tal:content="data/uas">A user agent string</li>
+			</ul>
+			<p>Click stuff:</p>
+			<p id="click-response"></p>
+		</div>
+		<div id="info">
+			<p id="ip" tal:content="data/ip"></p>
+			<p id="placeholder"></p>
+		</div>
+	</body>
+</html>
