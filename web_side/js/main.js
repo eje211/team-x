@@ -7,6 +7,9 @@ function reorient(e) {
 
 function getLocation() {
 	$.getJSON('response.php?type=locator', function(data) {
+		if (data == undefined) return;
+		if (data[0] == undefined) return;
+		if (data[0]["data"] == undefined) return;
 		var x = data[0]["data"].split(",")[0]; // 480
 		var y = data[0]["data"].split(",")[1]; // 290
 		x = Math.round(x * 480 / 1000);
@@ -22,10 +25,11 @@ $(document).ready(function() {
 	
 	reorient();
 	
-	$(window).bind( 'orientationchange', reorient);
+	$(window).bind('orientationchange', reorient);
+	$(window).bind('focusin', reorient);
 
 	setTimeout('scrollTo(0,1)',1000);
-	window.setTimeout(reorient, 0);
+	setTimeout(reorient, 50);
 	
 	$("#main-container-l").click(function(e) {
 		getLocation();

@@ -11,7 +11,7 @@ $options = array(
 $dbh = new PDO($dsn, 'unity', 'unity', $options);
 
 $sth = $dbh->prepare("SELECT * FROM unityresponse WHERE hash = :hash AND type = :type");
-$sth->execute(array(':hash' => (isset($_REQUEST['hash'])?$_REQUEST['hash']:$_SESSION['hash']), ':type' => $_REQUEST['type']));
+$sth->execute(array(':hash' => $_SESSION['hash'], ':type' => $_REQUEST['type']));
 
 echo json_encode($sth->fetchAll());
 

@@ -51,4 +51,5 @@ height:           10px;
 background-color: red;
 position:         absolute;
 display:          none;
+z-index:          100;
 }
