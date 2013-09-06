@@ -21,6 +21,8 @@ function getLocation() {
 }
 
 $(document).ready(function() {
+	$.websocket = new WebSocket("ws://localhost:8887/teamx");
+
 	setInterval(getLocation, 250);
 	
 	reorient();

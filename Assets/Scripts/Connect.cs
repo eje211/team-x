@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using System.Net;
 
 public static class Connect {
 	private static MySqlConnection connection = new MySqlConnection();

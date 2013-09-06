@@ -5,7 +5,7 @@ public class ForceField : MonoBehaviour {
 	
 	void OnCollisionExit(Collision collision) {
 		int spawnslot = collision.gameObject.GetComponent<CarElements>().spawnslot;
-		Central.mainClass.GetComponent<Main>().SpawnSlots.Add(spawnslot);
+		GlobalData.SpawnSlots.Add(spawnslot);
 		
 	}
 
