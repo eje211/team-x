@@ -10,7 +10,10 @@ public class OSC_controller_CS : MonoBehaviour {
 	void Update () {
 		
 	}
-		
+	
+	/// <summary>
+	/// Register handlers.
+	/// </summary>
 	void Start () {
 		// start the server - receive addrs /buttons and /tuio/2dcur 
 		oscMyServer.StartServer();
@@ -21,7 +24,7 @@ public class OSC_controller_CS : MonoBehaviour {
 		oscMyServer.SetHandler("/color", "ColorHandler");
 		
 		// Input from the touch screen about touch data.
-		oscMyServer.SetHandler("/kill", "KillHandler");;
+		oscMyServer.SetHandler("/quit", "QuitHandler");;
 		
 		// Input from the touch screen.
 		oscMyServer.SetHandler("/touch", "TouchHandler");
@@ -34,7 +37,12 @@ public class OSC_controller_CS : MonoBehaviour {
 		
 	}
 	
-		
+	/// <summary>
+	/// Handles touch input from the board.
+	/// </summary>
+	/// <param name='m'>
+	/// The hash of the car being moved, and its location in the format hash:x,y
+	/// </param>
 	void TouchHandler (string m) {
 		Debug.Log("Got touch input.");
 		Debug.Log("touch message: " + m); // Print the whole message.
@@ -53,8 +61,6 @@ public class OSC_controller_CS : MonoBehaviour {
 		float x = - coordtrans(actionParams[0], "x");
 		float y = coordtrans(actionParams[1], "y");
 
-		
-		/////// Old code.
 		// Get local representation of avatar
 		GameObject avatar = GlobalData.hashes[hash];
 		Dictionary<GameObject, Vector3> targets = GlobalData.targets;
@@ -69,21 +75,35 @@ public class OSC_controller_CS : MonoBehaviour {
 		avatar.GetComponent<CarElements>().hit = false;
 
 	}
-		
+	
+	/// <summary>
+	/// Translates the coordinates from the intermediate ones on the web server to the ones in Unity.
+	/// </summary>
+	/// <param name='dbcoord'>
+	/// The intermediate coordinates.
+	/// </param>
+	/// <param name='axis'>
+	/// Axis (no longer used).
+	/// </param>
 	private float coordtrans(string dbcoord, string axis) {
 		float result;
 		float floor = 100f; // (float) typeof(Vector3).GetProperty(axis).GetValue(GameObject.Find("Floor").transform.localScale, null);
-		result = float.Parse(dbcoord.Split('=')[1]);
+		result = float.Parse(dbcoord);
 		return (result / 1000f * floor) - (floor / 2);
 	}
 	
-			
-	public void KillHandler (string m) {
+	/// <summary>
+	/// Handles the action to destroy the car after the play has touched the "quit" button.
+	/// </summary>
+	/// <param name='m'>
+	/// The hash of the car of to destroy.
+	/// </param>
+	public void QuitHandler (string m) {
 		Debug.Log("Got destroy car request.");
 		Debug.Log("destroy car message: " + m); // Print the whole message.
 	
 		// Drop the destination now that we've used it.
-		string hash = m.Substring("/kill ".Length);
+		string hash = m.Substring("/quit ".Length);
 		MonoBehaviour.Destroy(GlobalData.hashes[hash]);
 		GlobalData.hashes.Remove(hash);
 	}
@@ -106,12 +126,21 @@ public class OSC_controller_CS : MonoBehaviour {
 		ColorChange(actionParams[0], actionParams[1]);
 	}
 	
+	/// <summary>
+	/// Handles the creation of a new car, when the user goes to the web page for the first time.
+	/// </summary>
+	/// <param name='m'>
+	/// The hash of the car to create.
+	/// </param>
 	void SpawnHandler(string m) {
 		Debug.Log("Got spawn request.");
 		Debug.Log("spawn message: " + m); // Print the whole message.
 	
 		// Drop the destination now that we've used it.
 		string hash = m.Substring("/spawn ".Length);
+		// Do not add the car if we already have it!
+		if (GlobalData.hashes.ContainsKey(hash)) Debug.Log("I know that player!");
+		if (GlobalData.hashes.ContainsKey(hash)) return;
 		// If there are no spawn slots, defer to next time.
 		List<int> SpawnSlots = GlobalData.SpawnSlots;
 		if (SpawnSlots.Count == 0) {
@@ -127,13 +156,22 @@ public class OSC_controller_CS : MonoBehaviour {
 		float spawnlocation = -45f + (float) (spawnslot * 10) ;
 		GameObject newobject = (GameObject) Instantiate(prefab, new Vector3(spawnlocation, 0.101f, -55f), Quaternion.identity);
 		newobject.name = hash;
-		Connect.hashes.Add(newobject.name, newobject);
+		GlobalData.hashes.Add(newobject.name, newobject);
 		ColorChange(newobject.name, "red");
 		newobject.tag = "Car";
 		newobject.GetComponent<CarElements>().spawnslot = spawnslot;
 	}
 	
-		
+	
+	/// <summary>
+	/// Changes the color of a car.
+	/// </summary>
+	/// <param name='hash'>
+	/// The hash of the car to change.
+	/// </param>
+	/// <param name='colorName'>
+	/// The name of the color to change to.
+	/// </param>
 	public static void ColorChange(string hash, string colorName) {
 		GameObject avatar = GlobalData.hashes[hash];
 		// avatar.renderer.material.mainTexture = (Texture) typeof(CarElements).GetProperty(colorName + "_color").GetValue(avatar.GetComponent<CarElements>(), null);

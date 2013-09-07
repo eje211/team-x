@@ -21,7 +21,7 @@ public class Main : MonoBehaviour {
 	
 	// Update is called once per frame
 	// Move units around as per the instructions from the database.
-	void FixedUpdate () {
+	void Update () {
 		// Make sure the cars behave at expected.
 		foreach (KeyValuePair<string,GameObject> car in GlobalData.hashes) {
 			if (car.Value.rigidbody.constraints == RigidbodyConstraints.None) continue;
@@ -47,11 +47,14 @@ public class Main : MonoBehaviour {
 			// Debug.Log("Distance: " + Vector3.Distance(target.Key.transform.position, target.Value).ToString());
 			if(Central.VerticalDistance(target.Key.transform.position, target.Value, 2.5f)) {
 				target.Key.rigidbody.velocity = Vector3.zero;
-				GlobalData.targets.Remove(target.Key);
+				GlobalData.toRemove.Add(target.Key);
 				continue;
 			}
 		}
-
+		foreach (GameObject key in GlobalData.toRemove) {
+			GlobalData.targets.Remove(key);
+		}
+		GlobalData.toRemove.Clear();
 	}
 
 }
@@ -60,6 +63,7 @@ public static class GlobalData {
 	public static Dictionary<string, GameObject>  hashes      = new Dictionary<string, GameObject>();
 	public static List<int>                       SpawnSlots  = new List<int>();
 	public static List<string>                    waitingList = new List<string>();
+	public static List<GameObject>                toRemove    = new List<GameObject>();
 	public static Dictionary<GameObject, Vector3> targets     = new Dictionary<GameObject, Vector3>();
 	public static float                           speed;
 }

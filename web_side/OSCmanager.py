@@ -77,17 +77,17 @@ class Receiver(object):
         
         # define a message-handler function for the server to call.
         def printing_handler(addr, tags, data, source):
-            print "---"
-            print "received new osc msg from %s" % myOSC.getUrlStr(source)
-            print "with addr : %s" % addr
-            print "typetags %s" % tags
-            print "data %s" % data
-            print "---"
+            print("---")
+            print("received new osc msg from %s" % myOSC.getUrlStr(source))
+            print("with addr : %s" % addr)
+            print("typetags %s" % tags)
+            print("data %s" % data)
+            print("---")
         # adding our function
         self.server.addMsgHandler("/print", printing_handler) 
         
         # Start OSCServer
-        print "Starting OSCServer."
+        print("Starting OSCServer.")
         self.serverThread = threading.Thread( target = self.server.serve_forever )
         self.serverThread.start()
         
@@ -97,17 +97,17 @@ class Receiver(object):
         
     def getHandlers(self):
         # print out a list of addresses that the server is listening to 
-        print "Registered Callback-functions are :"
+        print("Registered Callback-functions are :")
         for addr in self.server.getOSCAddressSpace():
-            print addr
+            print(addr)
             
     def close(self):
         # close out the server
-        print "Closing OSCServer."
+        print("Closing OSCServer.")
         self.server.close()
-        print "Waiting for Server-thread to finish"
+        print("Waiting for Server-thread to finish")
         self.serverThread.join() ##!!!
-        print "Done"
+        print("Done")
     
     def __del__(self):
         self.close()

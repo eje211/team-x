@@ -1,8 +1,9 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-import liblo
-import os, string, random, threading
+#import liblo
+import OSCmanager
+import os, string, random
 
 
 # Global variables
@@ -32,6 +33,7 @@ class MainHandler(tornado.web.RequestHandler):
         '''
         Create a random alphanumeric ID string.
         '''
+        print("Type of size: " + str(type(size)))
         return ''.join(random.choice(chars) for x in range(size))
 
 
@@ -54,21 +56,22 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print("Websocket connected.")
     def on_message(self, message):
+        send = OSC.client.send
         print("Message: " + message)
         chash, message = message.split("/", 1)
         if chash not in SOCKETS: SOCKETS[chash] = self
         if message == "quit":
             try: del HASHES[chash]
             except KeyError: pass
-            OSC.send('/quit', chash)
+            send('/quit', [chash])
         if message == "spawn":
-            OSC.send('/spawn', chash)
+            send('/spawn', [chash])
         if ': ' not in message: return
         message, data = message.split(': ', 1)
         if message == "touch":
-            OSC.send('/touch', "%s:%s" % (chash, data))
+            send('/touch', ["%s:%s" % (chash, data)])
         if message == "color":
-          OSC.send('/color', "%s:%s" % (chash, data))
+            send('/color', ["%s:%s" % (chash, data)])
     def on_close(self):
         pass
 
@@ -114,31 +117,15 @@ class OSC:
     @classmethod
     def init(cls):
         # Create the server to listen for messages from the System Manager.
-        cls.server = liblo.Server(15309)
+        cls.server = OSCmanager.Receiver( ('', 15309) )# addr is a tupple with the (ip, port)  -- broadcast
         # Assign handlers for the server to listen to.
-        cls.server.add_method("/locator", 's', cls.locatorHandler)
-        cls.serverThread = OSCThread(cls.server)
-        cls.serverThread.start()
-        cls.target = liblo.Address(15310)
+        cls.server.addHandler("/locator", cls.locatorHandler)
+        cls.client = OSCmanager.Sender(('127.0.0.1', 15310))
 
     @classmethod
-    def locatorHandler(cls, path, args):
-        print("message: %s" % args[0])
-        chash, data = args[0].split(':')
+    def locatorHandler(cls, addr, tags, data, source):
+        chash, data = data.split(':')
         SOCKETS[chash].write_message("location: " + data)
-
-    @classmethod
-    def send(cls, addr, message):
-        liblo.send(cls.target, addr, message)
-
-class OSCThread(threading.Thread):
-     def __init__(self, server):
-         threading.Thread.__init__(self)
-         self.server = server
-
-     def run(self):
-         while True:
-            OSC.server.recv(100)
 
 # Get the whole thing running
 def main():

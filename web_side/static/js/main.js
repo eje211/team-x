@@ -5,26 +5,31 @@ function reorient(e) {
 	$("#main-container-l").css("display", (portrait?"none":"block"));
 }
 
-function getLocation() {
-	$.getJSON('response.php?type=locator', function(data) {
-		if (data == undefined) return;
-		if (data[0] == undefined) return;
-		if (data[0]["data"] == undefined) return;
-		var x = data[0]["data"].split(",")[0]; // 480
-		var y = data[0]["data"].split(",")[1]; // 290
-		x = Math.round(x * 480 / 1000);
-		x = 480 - x;
-		y = Math.round(y * 290 / 1000);
-		$("#avatar").show();
-		$("#avatar").offset({top: y, left: x});
-	});
+function locationHandler(x, y) {
+	console.log("x: " + x + " :: y: " + y);
+	x = Math.round(x * 480 / 1000);
+	x = 480 - x;
+	y = Math.round(y * 290 / 1000);
+	$("#avatar").show();
+	$("#avatar").offset({top: y, left: x});
 }
 
 $(document).ready(function() {
-	$.websocket = new WebSocket("ws://localhost:8887/teamx");
+	console.log("Starting...");
 
-	setInterval(getLocation, 250);
-	
+	window.websocket = new WebSocket("ws://192.168.1.142:8887/teamx");
+
+	console.log(window.websocket);
+
+	window.websocket.onopen = function () {
+		console.log("Websock open.");
+		window.websocket.send("/test");
+		$.get("/hash", function(data) {
+			window.hash = data;
+			registerGameEvents();
+		});
+	};
+
 	reorient();
 	
 	$(window).bind('orientationchange', reorient);
@@ -32,26 +37,41 @@ $(document).ready(function() {
 
 	setTimeout('scrollTo(0,1)',1000);
 	setTimeout(reorient, 50);
-	
+
+	$(".color-picker").each(function() {
+		$(this).css("background-color", $(this).attr("id"));
+	});
+});
+
+function registerGameEvents() {
+	console.log("hash: " + window.hash);
+	window.websocket.send(window.hash + "/spawn");
+
 	$("#main-container-l").click(function(e) {
-		getLocation();
 		me = $("#main-container-l");
 		x = Math.round(e.pageX * 1000 / (parseInt(me.css("width"))  + 4));
 		y = Math.round(e.pageY * 1000 / (parseInt(me.css("height")) + 4));
 		$("#click-response").html("X: " + x + " -- Y: " + y);
-		$('#click-response').load('callback.php?type=locator&pageX=' + x + '&pageY=' + y);
+		window.websocket.send(window.hash + "/touch: " + x + "," + y);
 	});
 	
 	$("#quit-button").click(function(){
-		window.location = './?action=drop_player';
+		window.websocket.send(window.hash + "/quit");
 	});
 	
-	$(".color-picker").each(function() {
-		$(this).css("background-color", $(this).attr("id"));
-	})
-	
 	$(".color-picker").click(function() {
-		$("#click-response").load("callback.php?type=color&color=" + $(this).attr("id"));
+		window.websocket.send(window.hash + "/color: " + $(this).attr("id"));
 		$("#avatar").css("background-color", $(this).attr("id"));
-	})
-});
+	});
+
+	window.websocket.onmessage = function(msg){
+		msg = msg.data;
+		if (msg.slice(0, ("location: ").length) == "location: ") {
+    		msg = msg.slice("location: ".length);
+    		msg = $.map(msg.split(","), function(x) {return parseInt(x)});
+    		locationHandler(msg[0], msg[1]);
+    		return
+    	}
+	}
+
+}
