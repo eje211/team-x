@@ -8,3 +8,4 @@
 *.sln
 
 /web_side/deprecated/
+/web_side/deprecated/*.bak
