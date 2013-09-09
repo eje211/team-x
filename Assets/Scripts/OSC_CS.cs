@@ -14,8 +14,8 @@ public class OSC_CS : MonoBehaviour {
 	
 	private Osc handler;
 	private List<messageStruct> messageArr = new List<messageStruct>();
-	private StreamReader file = null;	
-	private string line = null;
+	// private StreamReader file = null;	
+	// private string line = null;
 	
 	public void Start () {
 	}

@@ -160,6 +160,7 @@ public class OSC_controller_CS : MonoBehaviour {
 		ColorChange(newobject.name, "red");
 		newobject.tag = "Car";
 		newobject.GetComponent<CarElements>().spawnslot = spawnslot;
+		// newobject.transform.Find("Start light"); // .animation.Play("Start light");
 	}
 	
 	
