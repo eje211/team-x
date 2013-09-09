@@ -11,7 +11,7 @@ There are three parts to this system:
 * A central webserver
 * A client script
 
-The Unity game uses an implementation of OSC that uses a specific DLL. As such, **Unity Pro** is needed for now.
+The Unity game uses an implementation of OSC that uses a specific DLL. As such, **Unity Pro** is needed for now. The game has been tested on Unity Pro 4, but Unity Pro 3 should also work.
 
 The webserver is in Python 3.3 and uses Tornado. Earlier versions of Python should also wok but have not been tested. The webserver requires the **Tornado web server libraries** to be installed, as well as the OSC library **Pyliblo**, which in turn requires the C libary liblo.
 
