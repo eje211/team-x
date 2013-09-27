@@ -56,7 +56,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print("Message: " + message)
         chash, message = message.split("/", 1)
-        if chash not in SOCKETS: SOCKETS[chash] = self
+        if chash not in SOCKETS or not SOCKETS[chash]: SOCKETS[chash] = self
         if message == "quit":
             try: del HASHES[chash]
             except KeyError: pass

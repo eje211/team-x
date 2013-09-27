@@ -17,7 +17,8 @@ function locationHandler(x, y) {
 $(document).ready(function() {
 	console.log("Starting...");
 
-	window.websocket = new WebSocket("ws://192.168.1.142:8887/teamx");
+	// window.websocket = new WebSocket("ws://192.168.1.142:8887/teamx");
+	window.websocket = new WebSocket("ws://192.168.2.9:8887/teamx");
 
 	console.log(window.websocket);
 
