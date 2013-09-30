@@ -123,9 +123,10 @@ class OSC:
 
     @classmethod
     def locatorHandler(cls, path, args):
-        print("message: %s" % args[0])
+        #print("message: %s" % args[0])
         chash, data = args[0].split(':')
-        SOCKETS[chash].write_message("location: " + data)
+        try: SOCKETS[chash].write_message("location: " + data)
+        except AttributeError: pass
 
     @classmethod
     def send(cls, addr, message):

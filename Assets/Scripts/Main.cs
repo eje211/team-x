@@ -35,10 +35,8 @@ public class Main : MonoBehaviour {
 				} catch(Exception e) {Debug.Log(e.ToString());
 		}
 		foreach (KeyValuePair<GameObject, Vector3> target in GlobalData.targets) {
-			if (!GlobalData.hashes.ContainsValue(target.Key)) {
-				Destroy(target.Key);
-				continue;
-			}
+			// Don't send message or otherwise take care of dead car.
+			if (target.Key.GetComponent<CarLife>().dead) return;			
 			// Handle responses.
 			OSC.Send("/locator", target.Key.name + ":" +
 				Mathf.Round((target.Key.transform.position.x + 50) * 10).ToString() + "," +

@@ -58,12 +58,17 @@ public class OSC_controller_CS : MonoBehaviour {
 		
 		string[] actionParams = message.Split(':');
 		string hash = actionParams[0];
+
+		// Get local representation of avatar
+		GameObject avatar = GlobalData.hashes[hash];
+		// If he car is dead, stop here.
+		if (avatar.GetComponent<CarLife>().dead) return;
+		
+		// We're going to move the car. Get the rest of the data.
 		actionParams = actionParams[1].Split(',');
 		float x = - coordtrans(actionParams[0], "x");
 		float y = coordtrans(actionParams[1], "y");
 
-		// Get local representation of avatar
-		GameObject avatar = GlobalData.hashes[hash];
 		Dictionary<GameObject, Vector3> targets = GlobalData.targets;
 		// Make a Vector3 for the coordinate.
 		Vector3 target = new Vector3(x, 0.1f, y);
