@@ -6,6 +6,7 @@ public class OSC_controller_CS : MonoBehaviour {
 	
 	public OSC_CS oscMyServer;
 	public GameObject prefab;
+	public Detonator explosion;
 	
 	void Update () {
 		
@@ -104,8 +105,11 @@ public class OSC_controller_CS : MonoBehaviour {
 	
 		// Drop the destination now that we've used it.
 		string hash = m.Substring("/quit ".Length);
+		Detonator boom = (Detonator) Instantiate(explosion, GlobalData.hashes[hash].transform.position, Quaternion.identity);
 		MonoBehaviour.Destroy(GlobalData.hashes[hash]);
+		GlobalData.targets.Remove(GlobalData.hashes[hash]);
 		GlobalData.hashes.Remove(hash);
+		boom.Explode();
 	}
 	
 	

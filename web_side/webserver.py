@@ -54,11 +54,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print("Websocket connected.")
     def on_message(self, message):
-        print("Message: " + message)
+        # print("Message: " + message)
         chash, message = message.split("/", 1)
         if chash not in SOCKETS or not SOCKETS[chash]: SOCKETS[chash] = self
         if message == "quit":
-            try: del HASHES[chash]
+            try: del SOCKETS[chash]
             except KeyError: pass
             OSC.send('/quit', chash)
         if message == "spawn":

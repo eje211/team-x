@@ -18,7 +18,7 @@ $(document).ready(function() {
 	console.log("Starting...");
 
 	// window.websocket = new WebSocket("ws://192.168.1.142:8887/teamx");
-	window.websocket = new WebSocket("ws://192.168.2.9:8887/teamx");
+	window.websocket = new WebSocket("ws://" + window.location.host + "/teamx");
 
 	console.log(window.websocket);
 
@@ -68,11 +68,11 @@ function registerGameEvents() {
 	window.websocket.onmessage = function(msg){
 		msg = msg.data;
 		if (msg.slice(0, ("location: ").length) == "location: ") {
-    		msg = msg.slice("location: ".length);
-    		msg = $.map(msg.split(","), function(x) {return parseInt(x)});
-    		locationHandler(msg[0], msg[1]);
-    		return
-    	}
+    			msg = msg.slice("location: ".length);
+    			msg = $.map(msg.split(","), function(x) {return parseInt(x)});
+    			locationHandler(msg[0], msg[1]);
+    			return;
+    		}
 	}
 
 }
