@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 import liblo
-import os, string, random, threading
+import os, string, hashlib, threading
 
 
 # Global variables
@@ -21,19 +21,19 @@ class MainHandler(tornado.web.RequestHandler):
     '''
     def get(self, page_name):
         chash = self.get_cookie("hash")
+        if chash != None: print("hash: " + chash)
+        else: print('No hash.')
         if chash == None:
-            chash = self.generateID(12)
-            SOCKETS[chash] = None
+            chash = self.generateID()
             self.set_cookie("hash", chash)
         self.write(render_template(page_name))
 
     # Adapted from: <http://stackoverflow.com/questions/2257441/python-random-string-generation-with-upper-case-letters-and-digits>
-    def generateID(self, size=6, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+    def generateID(self):
         '''
         Create a random alphanumeric ID string.
         '''
-        return ''.join(random.choice(chars) for x in range(size))
-
+        return hashlib.sha1(os.urandom(512)).hexdigest()
 
 class HashHandler(tornado.web.RequestHandler):
     '''
@@ -43,6 +43,13 @@ class HashHandler(tornado.web.RequestHandler):
       import socket
       self.set_header("Content-Type", 'text/plain')
       self.write(self.get_cookie("hash"))
+
+class ClearCookiesHandler(tornado.web.RequestHandler):
+    '''
+    Just diplay the host's IP address.
+    ''' 
+    def get(self, page_name=None):
+      self.clear_cookie("hash")
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     '''
@@ -56,7 +63,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         # print("Message: " + message)
         chash, message = message.split("/", 1)
-        if chash not in SOCKETS or not SOCKETS[chash]: SOCKETS[chash] = self
+        if chash not in SOCKETS: SOCKETS[chash] = self
         if message == "quit":
             try: del SOCKETS[chash]
             except KeyError: pass
@@ -117,6 +124,7 @@ class OSC:
         cls.server = liblo.Server(15309)
         # Assign handlers for the server to listen to.
         cls.server.add_method("/locator", 's', cls.locatorHandler)
+        cls.server.add_method("/crashed", 's', cls.crashedHandler)
         cls.serverThread = OSCThread(cls.server)
         cls.serverThread.start()
         cls.target = liblo.Address(15310)
@@ -127,6 +135,15 @@ class OSC:
         chash, data = args[0].split(':')
         try: SOCKETS[chash].write_message("location: " + data)
         except AttributeError: pass
+
+    @classmethod
+    def crashedHandler(cls, path, args):
+        chash = args[0]
+        print("Crashed " + chash)
+        try: SOCKETS[chash].write_message("crashed")
+        except AttributeError: pass
+        try: del SOCKETS[chash]
+        except KeyError: pass
 
     @classmethod
     def send(cls, addr, message):
@@ -147,6 +164,7 @@ def main():
         [
             (r"/hash",         HashHandler),
             (r"/teamx",        WebSocketHandler),
+            (r"/clear",        ClearCookiesHandler),
             (r"/static/(.*)",  StaticFileHandlerExtra, {"path": static_path}),
             (r"/(.*)",         MainHandler),
         ],

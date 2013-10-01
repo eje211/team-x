@@ -148,7 +148,7 @@ public class OSC_controller_CS : MonoBehaviour {
 		// Drop the destination now that we've used it.
 		string hash = m.Substring("/spawn ".Length);
 		// Do not add the car if we already have it!
-		if (GlobalData.hashes.ContainsKey(hash)) Debug.Log("I know that player!");
+		if (GlobalData.hashes.ContainsKey(hash)) Debug.Log("I know that player! It's " + hash);
 		if (GlobalData.hashes.ContainsKey(hash)) return;
 		// If there are no spawn slots, defer to next time.
 		List<int> SpawnSlots = GlobalData.SpawnSlots;

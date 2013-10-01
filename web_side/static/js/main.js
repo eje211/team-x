@@ -6,16 +6,32 @@ function reorient(e) {
 }
 
 function locationHandler(x, y) {
-	console.log("x: " + x + " :: y: " + y);
-	x = Math.round(x * 480 / 1000);
-	x = 480 - x;
-	y = Math.round(y * 290 / 1000);
+	var side = getSide(),
+            posX = parseInt($("#main-container-l").css("margin-left"));
+	x = Math.round(x * side / 1000);
+	x = side - x;
+	y = Math.round(y * side / 1000);
 	$("#avatar").show();
-	$("#avatar").offset({top: y, left: x});
+	$("#avatar").offset({top: y, left: x + posX});
+	console.log("x: " + x + " :: y: " + y);
+}
+
+function getSide() {
+	return Math.min(
+		$(window).height(),
+		$(window).width()
+	);
+}
+
+function resize() {
+	var side = getSide();
+	$("#main-container-l").width(side).height(side);
 }
 
 $(document).ready(function() {
 	console.log("Starting...");
+	resize();
+	$(window).resize(resize);
 
 	// window.websocket = new WebSocket("ws://192.168.1.142:8887/teamx");
 	window.websocket = new WebSocket("ws://" + window.location.host + "/teamx");
@@ -49,15 +65,19 @@ function registerGameEvents() {
 	window.websocket.send(window.hash + "/spawn");
 
 	$("#main-container-l").click(function(e) {
-		me = $("#main-container-l");
-		x = Math.round(e.pageX * 1000 / (parseInt(me.css("width"))  + 4));
-		y = Math.round(e.pageY * 1000 / (parseInt(me.css("height")) + 4));
-		$("#click-response").html("X: " + x + " -- Y: " + y);
+		// Based on: <http://stackoverflow.com/questions/3234977/using-jquery-how-to-get-click-coordinates-on-the-target-element>
+		var posX = parseInt($("#main-container-l").css("margin-left"));
+		posX = e.pageX - posX;
+		var side = getSide();
+		console.log("x: " + posX + " :: y: " + e.pageY);
+		x = Math.round(posX    * 1000 / side + 4);
+		y = Math.round(e.pageY * 1000 / side + 4);
 		window.websocket.send(window.hash + "/touch: " + x + "," + y);
 	});
 	
 	$("#quit-button").click(function(){
 		window.websocket.send(window.hash + "/quit");
+		$.get("/clear");
 	});
 	
 	$(".color-picker").click(function() {
@@ -67,12 +87,18 @@ function registerGameEvents() {
 
 	window.websocket.onmessage = function(msg){
 		msg = msg.data;
+		console.log("Got message: " + msg);
 		if (msg.slice(0, ("location: ").length) == "location: ") {
     			msg = msg.slice("location: ".length);
     			msg = $.map(msg.split(","), function(x) {return parseInt(x)});
     			locationHandler(msg[0], msg[1]);
     			return;
     		}
+		if (msg.slice(0, ("crashed").length) == "crashed") {
+			$.get("/clear");
+			$("#avatar").fadeOut();
+			return;
+		}
 	}
 
 }
